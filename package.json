@@ -48,7 +48,6 @@
         "RichardJanisch.winccoa-vscode-tests",
         "RichardJanisch.winccoa-sidepanel",
         "RichardJansich.winccoa-dp-inspector",
-        "winccoa-tools-pack.vscode-winccoa-ctrl-test-framework",
         "winccoa-tools-pack.vscode-winccoa-database",
         "winccoa-tools-pack.winccoa-ui-panel-viewer"
     ],
