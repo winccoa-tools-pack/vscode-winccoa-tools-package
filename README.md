@@ -1,4 +1,4 @@
-# WinCC OA Tools Pack
+# WinCC OA Tools Package
 
 A small Visual Studio Code extension pack that groups useful extensions for [SIMATIC WinCC Open Architecture](https://www.siemens.com/global/en/products/automation/industry-software/automation-software/scada/simatic-wincc-oa.html).
 
@@ -16,7 +16,9 @@ Currently added extensions:
 
 ## Install
 
-- From the VS Code Marketplace: search for [WinCC OA Tools Pack](https://marketplace.visualstudio.com/items?itemName=mPokornyETM.wincc-oa-tools-pack).
+- From the VS Code Marketplace: search for [WinCC OA Tools Package](https://marketplace.visualstudio.com/items?itemName=mPokornyETM.winccoa-tools-package).
+
+> **Note:** The old extension `mPokornyETM.wincc-oa-tools-pack` has been deprecated. Please uninstall it and use this new extension ID instead.
 - Or install the extension pack locally by opening this folder in VS Code and using the Extensions view to `Install from VSIX` after packaging.
 
 
@@ -48,8 +50,8 @@ WinCC OA and Siemens are trademarks of Siemens AG. This project is not affiliate
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/winccoa-tools-pack/vscode-winccoa-scriptactions)
-- [Issue Tracker](https://github.com/winccoa-tools-pack/vscode-winccoa-scriptactions/issues)
+- [GitHub Repository](https://github.com/winccoa-tools-pack/vscode-winccoa-tools-package)
+- [Issue Tracker](https://github.com/winccoa-tools-pack/vscode-winccoa-tools-package/issues)
 - [📦 VS Code Marketplace](https://marketplace.visualstudio.com/search?term=tag%3Awincc-oa&target=VSCode&category=All%20categories&sortBy=Relevance)
 - [SIMATIC WinCC Open Architecture](https://www.siemens.com/global/en/products/automation/industry-software/automation-software/scada/simatic-wincc-oa.html)
 - [SIMATIC WinCC Open Architecture official documentation](https://www.winccoa.com/documentation/WinCCOA/latest/en_US/index.html)

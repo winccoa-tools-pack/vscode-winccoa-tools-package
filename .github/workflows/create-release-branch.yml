@@ -3,12 +3,20 @@ name: Create Release Branch + PR
 on:
   workflow_dispatch:
     inputs:
+      kind:
+        description: "Branch type to create"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - release
+          - hotfix
       version:
         description: "Release version (SemVer, e.g. 1.2.3)"
         required: true
         type: string
       base_branch:
-        description: "Base branch (typically develop)"
+        description: "Base branch (release: develop, hotfix: main)"
         required: true
         default: "develop"
         type: string
@@ -27,6 +35,11 @@ on:
         required: false
         default: "chore,release"
         type: string
+      update_changelog:
+        description: "Update CHANGELOG.md on the created branch"
+        required: true
+        default: true
+        type: boolean
 
 concurrency:
   group: create-release-branch-${{ github.repository }}-${{ github.event.inputs.version }}
@@ -41,31 +54,45 @@ jobs:
   create:
     runs-on: ubuntu-latest
     steps:
-      - name: Create release branch and PR
-        id: create
+      - name: Create branch (release/hotfix)
+        id: branch
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.REPO_ADMIN_TOKEN != '' && secrets.REPO_ADMIN_TOKEN || github.token }}
           script: |
+            const kind = String(context.payload.inputs?.kind || 'release').trim();
             const rawVersion = (context.payload.inputs?.version || '').trim();
             const version = rawVersion.replace(/^v/i, '');
-            const baseBranch = (context.payload.inputs?.base_branch || 'develop').trim();
-            const targetBranch = (context.payload.inputs?.target_branch || 'main').trim();
-            const draft = String(context.payload.inputs?.draft || 'false').toLowerCase() === 'true';
-            const labelsRaw = (context.payload.inputs?.labels || '').trim();
-            const labels = labelsRaw
-              ? labelsRaw.split(',').map(l => l.trim()).filter(Boolean)
-              : [];
+            let baseBranch = (context.payload.inputs?.base_branch || 'develop').trim();
+            let targetBranch = (context.payload.inputs?.target_branch || 'main').trim();
+
+            if (!['release', 'hotfix'].includes(kind)) {
+              core.setFailed(`Invalid kind '${kind}'. Expected 'release' or 'hotfix'.`);
+              return;
+            }
+
+            // Convenience: keep defaults but auto-adjust if the user left them untouched.
+            if (kind === 'hotfix' && baseBranch === 'develop') {
+              core.info(`kind=hotfix: overriding base_branch from 'develop' to 'main'`);
+              baseBranch = 'main';
+            }
+            if (kind === 'hotfix' && targetBranch === 'develop') {
+              core.info(`kind=hotfix: overriding target_branch from 'develop' to 'main'`);
+              targetBranch = 'main';
+            }
 
             if (!/^\d+\.\d+\.\d+$/.test(version)) {
               core.setFailed(`Invalid version '${rawVersion}'. Expected SemVer like 1.2.3 (optional leading 'v' allowed)`);
               return;
             }
 
-            const releaseBranch = `release/v${version}`;
+            const releaseBranch = (kind === 'hotfix')
+              ? `hotfix/v${version}`
+              : `release/v${version}`;
+            core.info(`Kind: ${kind}`);
             core.info(`Base: ${baseBranch}`);
             core.info(`Target: ${targetBranch}`);
-            core.info(`Release branch: ${releaseBranch}`);
+            core.info(`Branch: ${releaseBranch}`);
 
             // 1) Ensure base branch exists
             let base;
@@ -114,7 +141,156 @@ jobs:
               }
             }
 
-            // 3) Reuse existing open PR if present
+            core.setOutput('kind', kind);
+            core.setOutput('version', version);
+            core.setOutput('base_branch', baseBranch);
+            core.setOutput('target_branch', targetBranch);
+            core.setOutput('branch', releaseBranch);
+
+      - name: Checkout branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.branch.outputs.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure git
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Set version in package.json and refresh lockfile
+        shell: bash
+        env:
+          VERSION: ${{ steps.branch.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${VERSION}" ]; then
+            echo "::error::VERSION is empty"
+            exit 1
+          fi
+
+          npm --version
+          node --version
+
+          npm version "${VERSION}" --no-git-tag-version --allow-same-version
+          npm install --ignore-scripts
+
+      - name: Update CHANGELOG.md
+        if: ${{ inputs.update_changelog }}
+        shell: bash
+        env:
+          VERSION: ${{ steps.branch.outputs.version }}
+          KIND: ${{ steps.branch.outputs.kind }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${VERSION}" ]; then
+            echo "::error::VERSION is empty"
+            exit 1
+          fi
+
+          TAG="v${VERSION}"
+          FILE="CHANGELOG.md"
+          DATE="$(date -u +%Y-%m-%d)"
+
+          if [ ! -f "$FILE" ]; then
+            printf "# Changelog\n\n" > "$FILE"
+          fi
+
+          if grep -qE "^## .*${TAG}([[:space:]]|$)" "$FILE"; then
+            echo "CHANGELOG already contains an entry for ${TAG}; skipping"
+            exit 0
+          fi
+
+          BASELINE=$(git describe --tags --abbrev=0 --match "v[0-9]*\.[0-9]*\.[0-9]*" 2>/dev/null || true)
+          if [ -n "$BASELINE" ]; then
+            LOG=$(git log "${BASELINE}"..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            LOG=$(git log --pretty=format:"- %s (%h)" --no-merges -n 20)
+          fi
+
+          HEADER_EMOJI="🚀"
+          if [ "${KIND}" = "hotfix" ]; then
+            HEADER_EMOJI="🩹"
+          fi
+
+          ENTRY_FILE=$(mktemp)
+          {
+            echo "## ${HEADER_EMOJI} ${TAG} (${DATE})"
+            echo ""
+            if [ -n "${LOG}" ]; then
+              echo "${LOG}"
+            else
+              echo "- (no changes detected)"
+            fi
+            echo ""
+          } > "${ENTRY_FILE}"
+
+          if head -n 1 "${FILE}" | grep -q '^#'; then
+            {
+              head -n 1 "${FILE}"
+              echo ""
+              cat "${ENTRY_FILE}"
+              tail -n +2 "${FILE}" || true
+            } > "${FILE}.tmp"
+            mv "${FILE}.tmp" "${FILE}"
+          else
+            {
+              cat "${ENTRY_FILE}"
+              cat "${FILE}"
+            } > "${FILE}.tmp"
+            mv "${FILE}.tmp" "${FILE}"
+          fi
+
+          rm -f "${ENTRY_FILE}"
+
+      - name: Commit and push changes
+        shell: bash
+        env:
+          VERSION: ${{ steps.branch.outputs.version }}
+        run: |
+          set -euo pipefail
+          git status --porcelain
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git add package.json
+          if [ -f package-lock.json ]; then
+            git add package-lock.json
+          fi
+          if [ -f CHANGELOG.md ]; then
+            git add CHANGELOG.md
+          fi
+
+          git commit -m "chore(release): prepare v${VERSION}"
+          git push origin "${{ steps.branch.outputs.branch }}"
+
+      - name: Create or reuse PR
+        id: pr
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.REPO_ADMIN_TOKEN != '' && secrets.REPO_ADMIN_TOKEN || github.token }}
+          script: |
+            const kind = String('${{ steps.branch.outputs.kind }}');
+            const version = String('${{ steps.branch.outputs.version }}');
+            const releaseBranch = String('${{ steps.branch.outputs.branch }}');
+            const baseBranch = String('${{ steps.branch.outputs.base_branch }}');
+            const targetBranch = String('${{ steps.branch.outputs.target_branch }}');
+            const draft = String(context.payload.inputs?.draft || 'false').toLowerCase() === 'true';
+            const labelsRaw = (context.payload.inputs?.labels || '').trim();
+            const labels = labelsRaw ? labelsRaw.split(',').map(l => l.trim()).filter(Boolean) : [];
+
             const head = `${context.repo.owner}:${releaseBranch}`;
             const existing = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -133,10 +309,16 @@ jobs:
               return;
             }
 
-            // 4) Create PR
-            const title = `chore(release): Release v${version}`;
+            const title = kind === 'hotfix'
+              ? `fix(hotfix): v${version}`
+              : `chore(release): Release v${version}`;
+
             const body = [
-              `Automated release PR for **v${version}**.`,
+              kind === 'hotfix'
+                ? `Automated **hotfix** PR for **v${version}**.`
+                : `Automated release PR for **v${version}**.`,
+              '',
+              '- CHANGELOG.md was updated on this branch.',
               '',
               'Checklist:',
               '- [ ] CI passes on this branch',
@@ -162,7 +344,6 @@ jobs:
 
             core.info(`Created PR: ${pr.data.html_url}`);
 
-            // 5) Apply labels if possible
             if (labels.length > 0) {
               try {
                 await github.rest.issues.addLabels({
@@ -182,5 +363,5 @@ jobs:
 
       - name: Summary
         run: |
-          echo "✅ Release branch: ${{ steps.create.outputs.branch }}"
-          echo "🔗 PR: ${{ steps.create.outputs.pr_url }}"
+          echo "✅ Branch: ${{ steps.branch.outputs.branch }}"
+          echo "🔗 PR: ${{ steps.pr.outputs.pr_url }}"

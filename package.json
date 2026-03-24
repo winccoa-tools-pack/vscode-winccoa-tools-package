@@ -1,8 +1,8 @@
 {
-    "name": "wincc-oa-tools-pack",
-    "displayName": "WinCC OA Tools Pack",
-    "publisher": "mPokornyETM",
-    "version": "0.0.9",
+    "name": "winccoa-tools-package",
+    "displayName": "WinCC OA Tools Package",
+    "publisher": "winccoa-tools-pack",
+    "version": "0.1.0",
     "engines": {
         "vscode": "^1.60.0"
     },
@@ -36,16 +36,20 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/winccoa-tools-pack/vs-code-tools-pack.git"
+        "url": "https://github.com/winccoa-tools-pack/vscode-winccoa-tools-package.git"
     },
     "license": "MIT",
     "extensionPack": [
-        "mPokornyETM.wincc-oa-projects",
+        "RichardJanisch.winccoa-ctrllang",
+        "RichardJanisch.winccoa-mcp-server",
+        "RichardJanisch.winccoa-project-admin",
         "RichardJanisch.winccoa-script-actions",
         "RichardJanisch.winccoa-vscode-logviewer",
         "RichardJanisch.winccoa-vscode-tests",
         "RichardJanisch.winccoa-sidepanel",
-        "RichardJanisch.winccoa-ctrl-lang"
+        "RichardJansich.winccoa-dp-inspector",
+        "winccoa-tools-pack.vscode-winccoa-database",
+        "winccoa-tools-pack.winccoa-ui-panel-viewer"
     ],
     "icon": "images/icon-128.png"
 }

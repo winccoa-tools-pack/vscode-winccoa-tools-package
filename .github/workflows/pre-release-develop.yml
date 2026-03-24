@@ -1,18 +1,15 @@
-name: Pre-Release (Beta)
+name: Pre-Release (Develop)
 
 on:
-  workflow_run:
-    workflows:
-      - "CI/CD Pipeline"
-    types:
-      - completed
-    branches:
-      - develop
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
   workflow_dispatch:
     inputs: {}
 
 concurrency:
-  group: prerelease-beta-${{ github.event.workflow_run.head_sha || github.ref }}
+  group: prerelease-develop-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -25,19 +22,20 @@ permissions:
 
 jobs:
   pre-release:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    uses: ./.github/workflows/prerelease-reusable.yml
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'pull_request' }}
+    uses: winccoa-tools-pack/.github/.github/workflows/reusable-prerelease.yml@main
     with:
-      target_branch: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}
+      target_branch: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
       validate_release_branch: false
+      project_type: vscode
     secrets: inherit
 
   cleanup-old-prereleases:
     needs: [pre-release]
     if: always() && needs.pre-release.result == 'success'
-    uses: winccoa-tools-pack/.github/.github/workflows/cleanup-prereleases-by-branch-reusable.yml@main
+    uses: winccoa-tools-pack/.github/.github/workflows/reusable-cleanup-prereleases-by-branch.yml@main
     with:
-      target_branch: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}
+      target_branch: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
       keep_latest: 2
     secrets: inherit
 
@@ -49,9 +47,9 @@ jobs:
     steps:
       - name: Success Notification
         run: |
-          echo "🧪 Beta pre-release ${{ needs.pre-release.outputs.tag }} created successfully!"
+          echo "🧪 Dev pre-release ${{ needs.pre-release.outputs.tag }} created successfully!"
           echo "📦 Tested VSIX attached to the GitHub pre-release"
           echo "🔍 Available for testing and validation"
-          echo "📝 Auto-generated from develop"
+          echo "📝 Trigger: ${{ github.event_name }}"
           echo ""
           echo "🔗 Pre-release URL: https://github.com/${{ github.repository }}/releases/tag/${{ needs.pre-release.outputs.tag }}"
