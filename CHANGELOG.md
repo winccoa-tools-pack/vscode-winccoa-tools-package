@@ -2,7 +2,7 @@
 
 ## 🚀 v0.1.0 (2026-03-24)
 
-- (no changes detected)
+- fix(gitFlow): Unify gir workflow
 
 
 ## 🩹 v0.0.9 (2026-01-16)
