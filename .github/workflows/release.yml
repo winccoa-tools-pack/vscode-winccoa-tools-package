@@ -3,7 +3,7 @@ name: Release
 on:
   workflow_run:
     workflows:
-      - "CI/CD Pipeline"
+      - "Upmerge main to develop (PR)"
     types:
       - completed
     branches:
@@ -21,16 +21,16 @@ permissions:
 
 jobs:
   release:
-    # Only run if the triggering workflow succeeded or manual dispatch
     if: |
       github.event_name == 'workflow_dispatch' ||
       (
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_branch == 'main'
       )
-    uses: ./.github/workflows/release-reusable.yml
+    uses: winccoa-tools-pack/.github/.github/workflows/reusable-release.yml@main
     with:
       target_branch: main
+      project_type: vscode
     secrets: inherit
 
   notify-success:
