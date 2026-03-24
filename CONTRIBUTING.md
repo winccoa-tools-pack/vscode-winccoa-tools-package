@@ -1,6 +1,6 @@
-# Contributing to WinCC OA Tools Pack
+# Contributing to WinCC OA Tools Package
 
-Thank you for your interest in contributing to the WinCC OA Tools Pack. This document provides guidelines to ensure a smooth collaboration process.
+Thank you for your interest in contributing to the WinCC OA Tools Package. This document provides guidelines to ensure a smooth collaboration process.
 
 ## 🤝 Code of Conduct
 
@@ -14,14 +14,14 @@ This project follows a Code of Conduct. By participating, you are expected to ma
 2. Clone your fork:
 
 ```powershell
-git clone https://github.com/YOUR_USERNAME/vs-code-tools-pack.git
-cd vs-code-tools-pack
+git clone https://github.com/YOUR_USERNAME/vscode-winccoa-tools-package.git
+cd vscode-winccoa-tools-package
 ```
 
 3. Add upstream remote (optional):
 
 ```powershell
-git remote add upstream https://github.com/winccoa-tools-pack/vs-code-tools-pack.git
+git remote add upstream https://github.com/winccoa-tools-pack/vscode-winccoa-tools-package.git
 ```
 
 ### 2. Follow Git Flow
@@ -95,8 +95,8 @@ git push origin feature/your-feature-name
 ### Installation
 
 ```powershell
-git clone https://github.com/winccoa-tools-pack/vs-code-tools-pack.git
-cd vs-code-tools-pack
+git clone https://github.com/winccoa-tools-pack/vscode-winccoa-tools-package.git
+cd vscode-winccoa-tools-package
 npm install
 ```
 

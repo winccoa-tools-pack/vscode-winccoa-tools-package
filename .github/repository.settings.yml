@@ -1,7 +1,7 @@
 # Repository settings applied via GitHub REST API by .github/workflows/apply-settings-and-rulesets.yml
 # This repo uses GitFlow: develop is default, main is stable release.
 
-description: "VS Code Tools Pack for WinCC OA"
+description: "VS Code Tools Package for WinCC OA — groups all helpful extensions into one pack"
 homepage: "https://github.com/winccoa-tools-pack"
 default_branch: "develop"
 

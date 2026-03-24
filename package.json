@@ -1,6 +1,6 @@
 {
-    "name": "wincc-oa-tools-pack",
-    "displayName": "WinCC OA Tools Pack",
+    "name": "winccoa-tools-package",
+    "displayName": "WinCC OA Tools Package",
     "publisher": "mPokornyETM",
     "version": "0.0.9",
     "engines": {
@@ -36,7 +36,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/winccoa-tools-pack/vs-code-tools-pack.git"
+        "url": "https://github.com/winccoa-tools-pack/vscode-winccoa-tools-package.git"
     },
     "license": "MIT",
     "extensionPack": [
