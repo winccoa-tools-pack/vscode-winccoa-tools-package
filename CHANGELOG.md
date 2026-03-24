@@ -1,5 +1,10 @@
 # Changelog
 
+## 🚀 v0.1.0 (2026-03-24)
+
+- (no changes detected)
+
+
 ## 🩹 v0.0.9 (2026-01-16)
 
 - fix(gitflow): update trigger for upmerge workflow to respond to push events on main branch (03d1249)
