@@ -32,7 +32,7 @@
         "wincc-oa-test",
         "test-view",
         "test-executor",
-        "wincc-oa-project-managment"
+        "wincc-oa-project-management"
     ],
     "repository": {
         "type": "git",
@@ -47,7 +47,7 @@
         "RichardJanisch.winccoa-vscode-logviewer",
         "RichardJanisch.winccoa-vscode-tests",
         "RichardJanisch.winccoa-sidepanel",
-        "RichardJansich.winccoa-dp-inspector",
+        "RichardJanisch.winccoa-dp-inspector",
         "winccoa-tools-pack.vscode-winccoa-database",
         "winccoa-tools-pack.winccoa-ui-panel-viewer"
     ],
