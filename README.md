@@ -2,23 +2,27 @@
 
 A small Visual Studio Code extension pack that groups useful extensions for [SIMATIC WinCC Open Architecture](https://www.siemens.com/global/en/products/automation/industry-software/automation-software/scada/simatic-wincc-oa.html).
 
-Currently added extensions:
+Included extensions (from `package.json` `extensionPack`):
 
-+ mPokornyETM.wincc-oa-projects 
-+ RichardJanisch.winccoa-script-actions
-+ RichardJanisch.winccoa-vscode-logviewer
-+ RichardJanisch.winccoa-vscode-tests
-+ RichardJanisch.winccoa-sidepanel
-+ RichardJanisch.winccoa-ctrl
+- `RichardJanisch.winccoa-ctrllang` — CTRL / CTRL++ language support
+- `RichardJanisch.winccoa-mcp-server` — MCP server integration for Copilot
+- `RichardJanisch.winccoa-project-admin` — project selection and PMON controls
+- `RichardJanisch.winccoa-script-actions` — run CTL scripts from VS Code
+- `RichardJanisch.winccoa-vscode-logviewer` — view and parse WinCC OA logs
+- `RichardJanisch.winccoa-vscode-tests` — Test Explorer integration
+- `RichardJanisch.winccoa-sidepanel` — WinCC OA activity bar views
+- `RichardJansich.winccoa-dp-inspector` — DP Inspector (publisher typo tracked separately)
+- `winccoa-tools-pack.vscode-winccoa-database` — database tooling
+- `winccoa-tools-pack.winccoa-ui-panel-viewer` — UI panel viewer/conversion tools
 
 
 ---
 
 ## Install
 
-- From the VS Code Marketplace: search for [WinCC OA Tools Package](https://marketplace.visualstudio.com/items?itemName=mPokornyETM.winccoa-tools-package).
+- From the VS Code Marketplace: search for [WinCC OA Tools Package](https://marketplace.visualstudio.com/items?itemName=winccoa-tools-pack.winccoa-tools-package).
 
-> **Note:** The old extension `mPokornyETM.wincc-oa-tools-pack` has been deprecated. Please uninstall it and use this new extension ID instead.
+> **Note:** Some older packs used different extension IDs. If you previously installed an older pack, uninstall it and use this one (`winccoa-tools-pack.winccoa-tools-package`).
 - Or install the extension pack locally by opening this folder in VS Code and using the Extensions view to `Install from VSIX` after packaging.
 
 
@@ -26,7 +30,7 @@ Currently added extensions:
 
 ## Usage
 
-Once installed, the extension pack will install the bundled extensions automatically. Use the individual extension commands and UI elements provided by those extensions (for example, the WinCC OA activity bar icon from `mPokornyETM.wincc-oa-projects`).
+Once installed, the extension pack installs the bundled extensions automatically. Use the individual extension commands and UI elements provided by those extensions.
 
 ---
 
