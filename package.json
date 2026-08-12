@@ -2,7 +2,7 @@
     "name": "winccoa-tools-package",
     "displayName": "WinCC OA Tools Package",
     "publisher": "winccoa-tools-pack",
-    "version": "0.0.9",
+    "version": "0.1.0",
     "engines": {
         "vscode": "^1.60.0"
     },
